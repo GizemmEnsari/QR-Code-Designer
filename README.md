@@ -6,7 +6,7 @@ No server, no database, no network calls — everything runs on-device.
 
 ---
 
-## ✨ Features
+## Features
 
 | Feature | Details |
 |---|---|
@@ -21,7 +21,7 @@ No server, no database, no network calls — everything runs on-device.
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 qr code app/
@@ -47,7 +47,7 @@ qr code app/
 
 ---
 
-## 🚀 How to Build & Run
+## How to Build & Run
 
 ### Option A — XcodeGen (recommended, one command)
 
@@ -91,7 +91,7 @@ qr code app/
 
 ---
 
-## 🔧 How It Works
+## How It Works
 
 ### QR Generation Pipeline (`QRCodeGenerator.swift`)
 
@@ -141,7 +141,7 @@ Published in AppViewModel    // SwiftUI redraws automatically
 
 ---
 
-## 🧪 Running Tests
+## Running Tests
 
 In Xcode:
 - **Product → Test** (⌘U) to run all unit tests.
@@ -150,7 +150,7 @@ In Xcode:
 
 ---
 
-## 📱 Testing on a Real iPhone
+## Testing on a Real iPhone
 
 1. In Xcode, go to **Product → Destination** and select your iPhone
    (or **More Devices** to register it).
@@ -168,7 +168,7 @@ In Xcode:
 
 ---
 
-## 🎨 Customisation Ideas
+## Customisation Ideas
 
 The codebase is structured so these are easy to add:
 
@@ -193,11 +193,3 @@ The codebase is structured so these are easy to add:
 No external dependencies. No server. No network. Just CoreImage.
 
 ---
-
-## ⚠️ Before App Store Submission
-
-- Add a real **App Icon** (1024×1024 PNG) to `Assets.xcassets/AppIcon.appiconset/`.
-- Add a `PrivacyInfo.xcprivacy` file if Apple requires one for your
-  app category (not needed for simulator / personal use).
-- Set a proper **Development Team** and **Bundle Identifier** in
-  `project.yml` before signing.
