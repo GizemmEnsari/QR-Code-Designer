@@ -1,0 +1,59 @@
+# project.yml — XcodeGen configuration
+# Install XcodeGen:  brew install xcodegen
+# Generate the .xcodeproj:  cd "qr code app" && xcodegen generate
+#
+# This produces a fully-featured Xcode project from the YAML below.
+# If you prefer the manual route, see README.md.
+
+name: QRCodeApp
+options:
+  bundleIdPrefix: com.example
+  deploymentTarget:
+    iOS: "16.0"
+
+targets:
+  # ── Main application ───────────────────────────────────────
+  QRCodeApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: QRCodeApp
+        excludes:
+          - "QRCodeGeneratorTests/**"
+    settings:
+      PRODUCT_NAME: "QRCodeApp"
+      SUPPORTED_PLATFORMS: "iphoneos iphonesimulator"
+      SUPPORTED_PLATFORMS_ONLY: "YES"
+      MARKETING_VERSION: "1.0"
+      CURRENT_PROJECT_VERSION: "1"
+      SWIFT_VERSION: "5.9"
+      GENERATE_INFOPLIST_FILE: "YES"
+      INFOPLIST_KEY_CFBundleDisplayName: "QR Generator"
+      INFOPLIST_KEY_UIApplicationSceneManifest_Generation: "YES"
+      INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: "YES"
+      INFOPLIST_KEY_UILaunchScreen_Generation: "YES"
+      INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait"
+      ASSETCATALOG_COMPILER_APPICON_NAME: "AppIcon"
+      ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: "AccentColor"
+      ENABLE_BITCODE: "NO"
+      ENABLE_PREVIEWS: "YES"
+      ENABLE_TESTABILITY: "YES"
+      DEVELOPMENT_TEAM: ""
+      CODE_SIGNING_ALLOWED: "NO"
+
+  # ── Unit tests (depends on the app target) ─────────────────
+  QRCodeGeneratorTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: QRCodeApp/QRCodeGeneratorTests
+    settings:
+      PRODUCT_NAME: "QRCodeGeneratorTests"
+      SUPPORTED_PLATFORMS: "iphonesimulator"
+      SUPPORTED_PLATFORMS_ONLY: "YES"
+      SWIFT_VERSION: "5.9"
+      GENERATE_INFOPLIST_FILE: "YES"
+      ENABLE_TESTABILITY: "YES"
+    dependencies:
+      - target: QRCodeApp
+        embed: false
