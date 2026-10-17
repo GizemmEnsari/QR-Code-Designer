@@ -1,195 +1,63 @@
-# QR Generator — iOS QR Code App
+# QR Generator
 
-A **native, offline** QR-code generator for iPhone built with
-**SwiftUI** and Apple's **CoreImage** framework.
-No server, no database, no network calls — everything runs on-device.
-
----
+A native offline QR code generator for iPhone built with SwiftUI and Apple CoreImage. No server. No database. No network calls. Everything runs on device.
 
 ## Features
 
-| Feature | Details |
-|---|---|
-| **Text / URL input** | Type any text or paste a URL — CoreImage encodes it |
-| **Correction levels** | L / M / Q / H pickers (more correction = denser, more damage-resistant) |
-| **Size options** | Small → X-Large scale multipliers |
-| **Custom colours** | Foreground + background colour pickers via `CIPalette` |
-| **Share & Save** | `ShareLink` opens the native iOS share sheet (Photos, AirDrop, Messages, …) |
-| **History** | Every generation is stored and can be re-shared or deleted |
-| **Dark mode** | Fully supports system dark mode |
-| **Offline** | Zero network requests — CoreImage does all the QR math locally |
-
----
+- **Text and URL input**: type any text or paste a URL and CoreImage encodes it
+- **Correction levels**: L, M, Q, H, where more correction means a denser but more damage resistant code
+- **Size options**: small to X Large scale multipliers
+- **Custom colours**: foreground and background colour pickers
+- **Share and Save**: ShareLink opens the native iOS share sheet for Photos, AirDrop, Messages and more
+- **History**: every generation is stored and can be re-shared or deleted
+- **Dark mode**: fully supports system dark mode
+- **Offline**: zero network requests, CoreImage does all the QR math locally
 
 ## Project Structure
 
 ```
-qr code app/
-├── project.yml                              # XcodeGen config
-├── README.md
-└── QRCodeApp/
-    ├── QRCodeApp.swift                      # @main entry point
-    ├── ContentView.swift                    # TabView with NavigationStack
-    ├── GenerateView.swift                   # Input, options, QR display, ShareLink
-    ├── HistoryView.swift                    # Scrollable list of past QR codes
-    ├── QRCodeGenerator.swift                # CoreImage CIFilter.qrCodeGenerator
-    ├── QRCodeItem.swift                     # Codable model for history
-    ├── AppViewModel.swift                   # State + persistence
-    ├── Assets.xcassets/                     # AppIcon, AccentColor
-    │   ├── AppIcon.appiconset/
-    │   ├── AccentColor.colorset/
-    │   └── Contents.json
-    ├── Preview Content/
-    │   └── Preview Assets.xcassets/
-    └── QRCodeGeneratorTests/
-        └── QRCodeGeneratorTests.swift       # XCTest unit tests
+QRCodeApp/
+├── QRCodeApp.swift
+├── ContentView.swift
+├── GenerateView.swift
+├── HistoryView.swift
+├── QRCodeGenerator.swift
+├── QRCodeItem.swift
+├── AppViewModel.swift
+└── Assets.xcassets/
 ```
-
----
-
-## How to Build & Run
-
-### Option A — XcodeGen (recommended, one command)
-
-1. **Install XcodeGen** (if you don't have it):
-   ```bash
-   brew install xcodegen
-   ```
-
-2. **Generate the project** from this folder:
-   ```bash
-   cd "qr code app"
-   xcodegen generate
-   ```
-
-3. **Open the project**:
-   ```bash
-   open QRCodeApp.xcodeproj
-   ```
-
-4. In Xcode:
-   - Select the **iPhone 15** simulator (or any iOS 16+ device).
-   - Press **⌘R** to build and run.
-
-### Option B — Manual Xcode setup
-
-1. Open **Xcode** → **File → New → Project**.
-2. Choose **iOS → App** → Next.
-3. Set:
-   - **Product Name**: `QR Generator`
-   - **Interface**: **SwiftUI**
-   - **Language**: **Swift**
-   - **Minimum Deployment Target**: **iOS 16.0**
-4. Click **Create**.
-5. In the navigator, delete the auto-generated `ContentView.swift`.
-6. **Drag every `.swift` file** from the `QRCodeApp/` folder into the
-   **QRCodeApp** target group in Xcode (make sure "Target: QR Generator"
-   is checked when the dialog appears).
-7. Drag the `Assets.xcassets` and `Preview Content/` folders into the project.
-8. Add the test folder files to the **QRCodeAppTests** target.
-9. Press **⌘R** to build.
-
----
 
 ## How It Works
 
-### QR Generation Pipeline (`QRCodeGenerator.swift`)
-
 ```
-User types "https://example.com"
-        │
-        ▼
-String → UTF-8 Data          // text.data(using: .utf8)
-        │
-        ▼
-CIFilter.qrCodeGenerator()   // Apple's built-in QR filter
-  .message        = data
-  .correctionLevel = "M"     // L / M / Q / H
-        │
-        ▼
-CIImage (tiny ~25×25 px)    // the raw QR pattern
-        │
-        ▼
-CGAffineTransform(scale×10)  // scale up so it's crisp & scannable
-        │
-        ▼
-CIContext.createCGImage()    // render to CGImage
-        │
-        ▼
-UIImage(cgImage:)            // wrap for SwiftUI
-        │
-        ▼
-CIPalette colour remap      // foreground/background tinting
-        │
-        ▼
-Published in AppViewModel    // SwiftUI redraws automatically
+User types text or URL
+String to UTF8 Data
+CIFilter.qrCodeGenerator()
+CIImage
+Scale up for crisp scanning
+CIContext.createCGImage()
+UIImage
+Colour remap for foreground and background
+Published in AppViewModel so SwiftUI redraws
 ```
 
-### Key Concepts
-
-- **`CIFilter.qrCodeGenerator`** — Apple ships this filter in CoreImage.
-  It does all the Reed–Solomon error-correction math for you.
-- **`CIPalette`** — A CoreImage filter that maps the darkest pixel
-  (QR dots) to a foreground colour and the lightest (background) to
-  a background colour. More reliable than manual blend-mode compositing.
-- **`ShareLink`** — iOS 16+ API that wraps the native share sheet.
-  Pass a `UIImage` and the system handles Photos, AirDrop, Messages, etc.
-- **`@Published` in `AppViewModel`** — When state changes, SwiftUI
-  automatically re-renders the relevant views. No manual refresh needed.
-- **`PropertyListEncoder` / `FileManager`** — History is persisted to the
-  app's sandbox Documents directory as a property list (`.plist`).
-
----
-
-## Running Tests
-
-In Xcode:
-- **Product → Test** (⌘U) to run all unit tests.
-- Tests cover: basic generation, empty input, all correction levels,
-  all size variants, PNG round-trip, and custom colours.
-
----
-
-## Testing on a Real iPhone
-
-1. In Xcode, go to **Product → Destination** and select your iPhone
-   (or **More Devices** to register it).
-2. You'll need a **free Apple Developer account**
-   (just sign in with your Apple ID — no $99/year needed for personal testing).
-3. Set **Signing & Capabilities** in the project settings:
-   - **Team**: Your free Apple ID
-   - **Bundle Identifier**: `com.YOURNAME.QRGenerator` (must be unique)
-   - In `project.yml`, set `DEVELOPMENT_TEAM` to your team ID and
-     `CODE_SIGNING_ALLOWED: "YES"` before regenerating.
-4. Press **⌘R** — Xcode will build and install the app on your phone.
-
-> **Tip**: With a free account you can run the app for 7 days before
-> you need to re-sign. For development that's usually fine.
-
----
+- **CIFilter.qrCodeGenerator** handles all the Reed Solomon error correction math for you
+- **ShareLink** is the iOS 16 API that wraps the native share sheet
+- **Published in AppViewModel** means SwiftUI re-renders automatically when state changes
+- **History** is saved locally using JSONEncoder and UserDefaults
 
 ## Customisation Ideas
 
-The codebase is structured so these are easy to add:
+- **Logo in the centre** by compositing a small UIImage onto the centre pixel, which needs correction level H
+- **Save directly to Photos** by adding a PHPhotoLibrary call
+- **Wi Fi, vCard and URL presets** as quick paste buttons that fill the text field
+- **Scan to fill** with AVCaptureSession to scan a QR and pre fill the input
+- **Export as PDF** by wrapping the UIImage in a PDFDocument export
 
-- **Logo in the centre** — composite a small `UIImage` onto the QR
-  centre pixel (requires correction level H).
-- **Save directly to Photos** — add a `PHPhotoLibrary` call.
-- **Wi-Fi / vCard / URL presets** — add quick-paste buttons that
-  fill the text field with a formatted string.
-- **Scan to fill** — use `AVCaptureSession` to scan a QR and
-  pre-fill the input.
-- **Export as PDF** — wrap the `UIImage` in a `PDFDocument` export.
+## Requirements
 
----
-
-## 📝 Requirements
-
-- **Xcode 15+**
-- **iOS 16+** (for `ShareLink`, `NavigationStack`, `axis:` TextField, `ColorPicker`)
-- **Swift 5.9+**
-- **XcodeGen** (optional, for automated project generation)
+- Xcode 15 or newer
+- iOS 16 or newer
+- Swift 5.9 or newer
 
 No external dependencies. No server. No network. Just CoreImage.
-
----
